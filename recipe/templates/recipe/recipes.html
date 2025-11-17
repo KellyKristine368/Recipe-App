@@ -1,0 +1,42 @@
+{% extends "recipe/base.html" %}
+
+{% block title %}All Recipes{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold mb-3">All Recipes</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% if recipes %}
+        {% for recipe in recipes %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if recipe.recipe_image %}
+                        <img src="{{ recipe.recipe_image.url }}" class="card-img-top" style="height:200px; object-fit:cover;" alt="{{ recipe.recipe_name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top" alt="No Image">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ recipe.recipe_name }}</h5>
+                        <p class="card-text text-truncate">{{ recipe.recipe_description|truncatewords:20 }}</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <a href="{% url 'update_recipe' recipe.id %}" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="{% url 'delete_recipe' recipe.id %}" class="btn btn-sm btn-danger">Delete</a>
+                            <span class="badge bg-success">{{ recipe.recipe_view_count }} views</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <p class="text-muted fs-5">No recipes found. Try adding some delicious recipes!</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
