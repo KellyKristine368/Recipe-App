@@ -1,0 +1,163 @@
+{% extends "recipe/base.html" %}
+{% block title %}{{ recipe.recipe_name }}{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}?category={{ recipe.category.id }}">{{ recipe.category.name }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ recipe.recipe_name }}</li>
+        </ol>
+    </nav>
+    <!-- Recipe Hero Image with Title Overlay -->
+    <div class="recipe-hero position-relative mb-5 rounded shadow-sm overflow-hidden">
+        {% if recipe.recipe_image %}
+            <img src="{{ recipe.recipe_image.url }}" class="w-100" style="height:400px; object-fit:cover;" alt="{{ recipe.recipe_name }}">
+        {% else %}
+            <img src="https://via.placeholder.com/800x400?text=No+Image" class="w-100" style="height:400px; object-fit:cover;" alt="No Image">
+        {% endif %}
+        <div class="recipe-title-overlay position-absolute top-50 start-50 translate-middle text-white text-center">
+            <h1 class="fw-bold">{{ recipe.recipe_name }}</h1>
+        </div>
+    </div>
+    <!-- Edit/Delete Buttons (Owner Only) -->
+    {% if user.is_authenticated and user == recipe.owner %}
+    <div class="mb-4 text-end">
+        <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-outline-primary me-2">Edit</a>
+        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-outline-danger">Delete</a>
+    </div>
+    {% endif %}
+    <!-- Recipe Description & Details -->
+    <div class="mb-5">
+        <h4 class="fw-semibold text-primary">Description</h4>
+        <p>{{ recipe.recipe_description }}</p>
+        <!-- Optional Details Badges -->
+        <div class="mb-3">
+            {% if recipe.prep_time %}<span class="badge bg-warning text-dark">Prep: {{ recipe.prep_time }} mins</span>{% endif %}
+            {% if recipe.cook_time %}<span class="badge bg-info text-dark">Cook: {{ recipe.cook_time }} mins</span>{% endif %}
+            {% if recipe.servings %}<span class="badge bg-secondary">Servings: {{ recipe.servings }}</span>{% endif %}
+        </div>
+    </div>
+    <!-- Ingredients & Instructions Two-Column Layout -->
+    <div class="row mb-5">
+        <!-- Ingredients -->
+        {% if recipe.ingredients.all %}
+        <div class="col-md-6 mb-4">
+            <h4 class="fw-semibold text-primary">Ingredients</h4>
+            <ul class="list-group list-group-flush shadow-sm rounded">
+                {% for ingredient in recipe.ingredients.all %}
+                    <li class="list-group-item">{{ ingredient.name }} {% if ingredient.quantity %}- {{ ingredient.quantity }}{% endif %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <!-- Instructions -->
+        {% if recipe.instructions.all %}
+        <div class="col-md-6 mb-4">
+            <h4 class="fw-semibold text-primary">Instructions</h4>
+            <ol class="list-group list-group-numbered shadow-sm rounded">
+                {% for step in recipe.instructions.all %}
+                    <li class="list-group-item">{{ step.description }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+    </div>
+    <!-- Views and Category -->
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-5">
+        <span class="badge bg-success">{{ recipe.recipe_view_count }} views</span>
+        <span class="text-muted">Category: {{ recipe.category.name }}</span>
+    </div>
+    <!-- Related Recipes Carousel -->
+    {% if related_recipes %}
+    <div class="mb-5">
+        <h3 class="fw-bold mb-4 text-primary">Related Recipes</h3>
+        <div id="relatedCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for related in related_recipes %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <a href="{% url 'recipe_detail' related.id %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm mx-auto" style="max-width:400px; border-radius:12px;">
+                            {% if related.recipe_image %}
+                                <img src="{{ related.recipe_image.url }}" class="card-img-top" style="height:200px; object-fit:cover; border-radius:12px 12px 0 0;" alt="{{ related.recipe_name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top" style="border-radius:12px 12px 0 0;" alt="No Image">
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{{ related.recipe_name }}</h6>
+                                <p class="card-text text-truncate">{{ related.recipe_description|truncatewords:15 }}</p>
+                                <span class="btn btn-primary mt-2">View Recipe</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#relatedCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#relatedCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Back to Home -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-4">← Back to Home</a>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+/* Hero Overlay */
+.recipe-hero {
+    position: relative;
+    overflow: hidden;
+}
+.recipe-title-overlay {
+    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+/* Buttons */
+.btn-outline-primary {
+    border-color: #FFB997;
+    color: #FF6B35;
+}
+.btn-outline-primary:hover {
+    background-color: #FFB997;
+    color: #fff;
+}
+.btn-outline-danger {
+    border-color: #FF4C4C;
+    color: #FF4C4C;
+}
+.btn-outline-danger:hover {
+    background-color: #FF4C4C;
+    color: #fff;
+}
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+/* Headings */
+h4 {
+    color: #FF6B35;
+}
+/* List Styling */
+.list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+}
+/* Recipe Cards Hover */
+.card:hover {
+    transform: translateY(-6px);
+    transition: 0.3s ease;
+}
+</style>
+{% endblock %}
+

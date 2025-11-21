@@ -1,0 +1,50 @@
+{% extends "recipe/base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">📂 Categories</h2>
+
+    <a href="{% url 'add_category' %}" class="btn btn-primary mb-4">+ Add New Category</a>
+
+    {% if categories %}
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 p-3">
+                <h5 class="card-title">{{ category.name }}</h5>
+                {% if category.description %}
+                <p class="card-text text-truncate">{{ category.description|truncatewords:20 }}</p>
+                {% endif %}
+
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <a href="{% url 'edit_category' category.id %}" class="btn btn-sm btn-outline-primary">✏️ Edit</a>
+                    <a href="{% url 'delete_category' category.id %}" class="btn btn-sm btn-outline-danger">🗑️ Delete</a>
+                </div>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+    <a href="{% url 'category_detail' category.id %}" class="btn btn-sm btn-primary">View Recipes →</a>
+    
+</div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-muted fs-5">No categories found. Add one to get started!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card { border-radius: 12px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+
+.btn-outline-primary { border-color: #FFB997; color: #FF6B35; }
+.btn-outline-primary:hover { background-color: #FFB997; color: #fff; }
+.btn-outline-danger { border-color: #FF4C4C; color: #FF4C4C; }
+.btn-outline-danger:hover { background-color: #FF4C4C; color: #fff; }
+</style>
+{% endblock %}

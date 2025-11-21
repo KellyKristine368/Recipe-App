@@ -1,0 +1,25 @@
+{% extends "recipe/base.html" %}
+
+{% block title %}Delete Category{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="fw-bold mb-4 text-danger">🗑️ Delete Category: {{ category.name }}</h2>
+    <p class="lead">Are you sure you want to permanently delete this category? This action cannot be undone.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'categories' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.btn-danger { background-color: #FF4C4C; border-color: #FF4C4C; color: white; }
+.btn-danger:hover { background-color: #FF3333; border-color: #FF3333; }
+.btn-secondary { background-color: #6c757d; border-color: #6c757d; color: white; }
+.btn-secondary:hover { background-color: #5a6268; }
+</style>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "recipe/base.html" %}
+
+{% block title %}All Recipes{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">All Recipes 🍽️</h2>
+
+    <a href="{% url 'create_recipe' %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mb-4 d-inline-block">
+        + Add New Recipe
+    </a>
+
+    {% if categorized_recipes %}
+        {% for category, recipes in categorized_recipes.items %}
+            <h3 class="text-2xl font-semibold text-gray-700 mt-10 mb-4">
+                {{ category.name|default:"Uncategorized" }}
+            </h3>
+
+            <div class="row g-4">
+                {% for recipe in recipes %}
+                    <div class="col-md-4">
+                        <div class="card shadow-sm position-relative recipe-card">
+                            {% if recipe.category %}
+                                <span class="card-category">{{ recipe.category.name }}</span>
+                            {% endif %}
+                            <a href="{% url 'recipe_detail' recipe.id %}" class="text-decoration-none text-dark">
+                                {% if recipe.recipe_image %}
+                                    <img src="{{ recipe.recipe_image.url }}" class="card-img-top recipe-img" alt="{{ recipe.recipe_name }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top recipe-img" alt="No Image">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ recipe.recipe_name }}</h5>
+                                    <p class="card-text">{{ recipe.recipe_description|truncatewords:20 }}</p>
+                                    <span class="btn btn-primary mt-2">View Recipe →</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No recipes found. Add some delicious recipes!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Cards */
+.recipe-card { border-radius: 12px; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+.recipe-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+
+/* Images */
+.recipe-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; }
+
+/* Category Badge */
+.card-category { position: absolute; top: 12px; left: 12px; background-color: rgba(255,107,53,0.9); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 500; z-index: 10; }
+
+/* Truncated Text */
+.card-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Buttons */
+.btn-primary { background-color: #FF6B35; border-color: #FF6B35; }
+.btn-primary:hover { background-color: #FF5420; border-color: #FF5420; }
+</style>
+{% endblock %}

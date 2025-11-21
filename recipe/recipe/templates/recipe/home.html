@@ -1,0 +1,161 @@
+{% extends "recipe/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block hero %}
+<section class="hero position-relative">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container text-center text-white">
+        <h1 class="display-4 fw-bold">Welcome to RecipeHub 🍳</h1>
+        <p class="lead">Discover, create, and share amazing recipes from around the world.</p>
+
+        <form method="get" action="{% url 'home' %}" class="d-flex justify-content-center mt-4" style="max-width:500px; margin:0 auto;">
+            <input type="text" name="search" class="form-control form-control-lg"
+                   placeholder="Search recipes..." value="{{ search_query }}">
+            <button class="btn btn-light btn-lg ms-2">Search</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<!-- Featured Recipe 🌟 -->
+{% if featured_recipe %}
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">Featured Recipe of the Week 🌟</h2>
+    <a href="{% url 'recipe_detail' featured_recipe.id %}" class="text-decoration-none text-dark">
+        <div class="card shadow-sm mb-4 featured-card position-relative">
+            {% if featured_recipe.category %}
+                <span class="card-category">{{ featured_recipe.category.name }}</span>
+            {% endif %}
+            {% if featured_recipe.recipe_image %}
+                <img src="{{ featured_recipe.recipe_image.url }}" class="card-img-top featured-img" alt="{{ featured_recipe.recipe_name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/800x400?text=No+Image" class="card-img-top featured-img" alt="No Image">
+            {% endif %}
+            <div class="card-body text-center">
+                <h3 class="card-title fw-bold">{{ featured_recipe.recipe_name }}</h3>
+                <p class="card-text text-truncate">{{ featured_recipe.recipe_description|truncatewords:40 }}</p>
+                <span class="btn btn-primary mt-2">View Recipe →</span>
+            </div>
+        </div>
+    </a>
+</div>
+{% endif %}
+
+<!-- Categories -->
+{% if categories %}
+<div class="container my-4">
+    <h4 class="fw-bold mb-3">Browse by Category</h4>
+    <div class="d-flex overflow-auto gap-2 py-2">
+        <a href="{% url 'home' %}" class="btn category-pill {% if not selected_category %}active{% endif %}">All</a>
+        {% for category in categories %}
+            <a href="?category={{ category.id }}" class="btn category-pill {% if selected_category == category.id %}active{% endif %}">
+                {{ category.name }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Latest Recipes 🆕 -->
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">Latest Recipes 🆕</h2>
+    <div id="masonry">
+        {% for recipe in latest_recipes %}
+        <div class="recipe-card card shadow-sm mb-4 position-relative">
+            {% if recipe.category %}
+                <span class="card-category">{{ recipe.category.name }}</span>
+            {% endif %}
+            <a href="{% url 'recipe_detail' recipe.id %}" class="text-decoration-none text-dark">
+                {% if recipe.recipe_image %}
+                    <img src="{{ recipe.recipe_image.url }}" class="recipe-img" alt="{{ recipe.recipe_name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x200?text=No+Image" class="recipe-img" alt="No Image">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.recipe_name }}</h5>
+                    <p class="card-text">{{ recipe.recipe_description|truncatewords:20 }}</p>
+                    <span class="btn btn-primary mt-2">View Recipe →</span>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+            <p class="text-muted">No latest recipes found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Most Viewed Recipes 👀 -->
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">Most Viewed Recipes 👀</h2>
+    <div id="popularCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            {% for recipe in popular_recipes %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <a href="{% url 'recipe_detail' recipe.id %}" class="text-decoration-none text-dark">
+                    <div class="card shadow-sm mx-auto popular-card position-relative">
+                        {% if recipe.category %}
+                            <span class="card-category">{{ recipe.category.name }}</span>
+                        {% endif %}
+                        {% if recipe.recipe_image %}
+                            <img src="{{ recipe.recipe_image.url }}" class="card-img-top popular-img" alt="{{ recipe.recipe_name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/600x300?text=No+Image" class="card-img-top popular-img" alt="No Image">
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title fw-bold">{{ recipe.recipe_name }}</h5>
+                            <span class="badge bg-success">{{ recipe.recipe_view_count }} views</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#popularCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#popularCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero */
+.hero { height: 380px; background: url('https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg') center/cover no-repeat; }
+.hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+.hero-content { position: relative; padding-top: 110px; }
+
+/* Category Pills */
+.category-pill { border-radius: 50px; padding: 0.45rem 1.4rem; border: 2px solid #FFB997; color: #FF6B35; background: white; font-weight: 500; }
+.category-pill.active, .category-pill:hover { background: #FF6B35; color: white; }
+
+/* Masonry */
+#masonry { column-count: 1; column-gap: 1rem; }
+@media (min-width: 768px) { #masonry { column-count: 2; } }
+@media (min-width: 992px) { #masonry { column-count: 3; } }
+
+/* Cards */
+.recipe-card, .featured-card, .popular-card { border-radius: 12px; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+.recipe-card:hover, .featured-card:hover, .popular-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+
+/* Images */
+.recipe-img, .featured-img, .popular-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; }
+.featured-img { height: 400px; object-fit: cover; }
+
+/* Category Badge */
+.card-category { position: absolute; top: 12px; left: 12px; background-color: rgba(255,107,53,0.9); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 500; z-index: 10; }
+
+/* Truncated Text */
+.card-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Buttons */
+.btn-primary { background-color: #FF6B35; border-color: #FF6B35; }
+.btn-primary:hover { background-color: #FF5420; border-color: #FF5420; }
+</style>
+{% endblock %}
